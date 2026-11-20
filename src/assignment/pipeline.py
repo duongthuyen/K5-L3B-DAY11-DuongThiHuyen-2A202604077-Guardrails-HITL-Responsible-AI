@@ -91,7 +91,7 @@ async def run_assignment_suite(pipeline) -> dict:
     # Plugins are applied by BluePipeline, not duplicated inside the SDK runner.
     agent, runner = create_blue_agent([])
     runner.client_kwargs.update(timeout=60, max_retries=1)
-    runner.max_tokens = 256
+    runner.max_tokens = 1024
     async def model_call(text):
         response, _ = await chat_with_agent(agent, runner, text)
         return response

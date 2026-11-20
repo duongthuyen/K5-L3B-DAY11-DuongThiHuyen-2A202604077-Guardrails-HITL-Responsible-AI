@@ -2,7 +2,7 @@
 
 > File này **tự sinh** bởi `scripts/grade.py`. **Không** viết / sửa tay.
 
-- Generated (UTC): `2026-11-20T11:28:53.147489+00:00`
+- Generated (UTC): `2026-11-20T11:34:45.659780+00:00`
 - Framework: `—`
 - Technical failure: **True**
 
@@ -40,7 +40,7 @@
 
 ```text
 ......ssss                                                               [100%]
-6 passed, 4 skipped in 1.22s
+6 passed, 4 skipped in 1.09s
 ```
 
 ## Notes

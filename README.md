@@ -3,7 +3,9 @@
 Trạng thái kiểm tra ngày 20/11/2026: 62 test logic/smoke đạt; CP4 chạy thật trên
 `gpt-4o-mini`: Red leak 5/5, Red Advance chặn 5/5 (không có lỗi NeMo).
 **Chưa đủ hồ sơ nộp:** CP3 gọi đúng model Blue nhưng OpenRouter trả 429/504;
-chưa có `outputs/results.json`, nên 4 test artifact bị skip. Audit/metrics ghi
+Lần thử tiếp sau khi điền key cũng nhận nội dung rỗng/429; lần thử với giới hạn
+1.024 token không hoàn tất sau hơn hai phút và đã được dừng.
+Chưa có `outputs/results.json`, nên 4 test artifact bị skip. Audit/metrics ghi
 nhận lần gọi lỗi thật. Cần chạy lại `--part 3`, toàn bộ tests và grader khi dịch vụ
 phục hồi, rồi commit các artifact mới. Không dùng mock/placeholder thay kết quả LLM.
 
