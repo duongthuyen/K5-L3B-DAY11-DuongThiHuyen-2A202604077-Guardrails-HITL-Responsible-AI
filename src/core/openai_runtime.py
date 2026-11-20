@@ -43,6 +43,7 @@ class OpenAIRunner:
     provider: str = "openai"
     temperature: float = 0.4
     max_tokens: int | None = None
+    extra_body: dict = field(default_factory=dict)
     client_kwargs: dict = field(default_factory=dict)
     input_hooks: list[Callable[[str], str | None]] = field(default_factory=list)
     output_hooks: list[Callable[[str], str]] = field(default_factory=list)
@@ -71,6 +72,7 @@ class OpenAIRunner:
             ],
             temperature=self.temperature,
             **({"max_tokens": self.max_tokens} if self.max_tokens is not None else {}),
+            **({"extra_body": self.extra_body} if self.extra_body else {}),
         )
         text = (completion.choices[0].message.content or "").strip()
 

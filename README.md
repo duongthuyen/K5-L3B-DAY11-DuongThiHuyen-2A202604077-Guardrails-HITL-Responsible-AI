@@ -1,16 +1,19 @@
 ## Bài làm — Dương Thị Huyền · 2A202604077 · K5-L3B
 
-Trạng thái kiểm tra ngày 20/11/2026: 62 test logic/smoke đạt; CP4 chạy thật trên
-`gpt-4o-mini`: Red leak 5/5, Red Advance chặn 5/5 (không có lỗi NeMo).
-**Chưa đủ hồ sơ nộp:** CP3 gọi đúng model Blue nhưng OpenRouter trả 429/504;
-Lần thử tiếp sau khi điền key cũng nhận nội dung rỗng/429; lần thử với giới hạn
-1.024 token không hoàn tất sau hơn hai phút và đã được dừng.
-Chưa có `outputs/results.json`, nên 4 test artifact bị skip. Audit/metrics ghi
-nhận lần gọi lỗi thật. Cần chạy lại `--part 3`, toàn bộ tests và grader khi dịch vụ
-phục hồi, rồi commit các artifact mới. Không dùng mock/placeholder thay kết quả LLM.
+Trạng thái ngày 20/11/2026: đã sinh đủ artifact bằng lần chạy LLM thật.
+Toàn bộ 67 test đạt, không skip; schema hợp lệ, grader báo `technical_failure: false`.
+Blue cho qua 5/5 câu an toàn, chặn 8/8 câu tấn công; rate limiter chặn 5/15 lượt.
+CP4 chạy trên `gpt-4o-mini`: Red leak 5/5, Red Advance chặn 5/5 (không lỗi NeMo).
+
+**Ngoại lệ model cần coach xem xét:** người dùng cho phép đổi model sau khi
+`liquid/lfm-3-1.7b:free` gặp 429/504, nội dung rỗng và chờ kéo dài.
+CP3 thực tế dùng `nvidia/nemotron-3.5-lightning:free` qua OpenRouter, tắt reasoning,
+giới hạn 1.024 output token. `results.json` khai đúng model, model rubric yêu cầu
+và `matches_lab_model: false`. Kết quả này không phải bằng chứng chạy trên Liquid;
+việc chấp nhận ngoại lệ/điểm chính thức thuộc coach. Không dùng dữ liệu giả thay LLM.
 
 Triển khai CP2–CP4 trong `src/guardrails`, `src/assignment`, `src/attacks`.
-Pipeline chạy rate limit → input → model Blue cố định → output; audit và monitoring
+Pipeline chạy rate limit → input → model Blue cấu hình rõ ràng → output; audit và monitoring
 quan sát cả request bị chặn. Egress chỉ cho HTTPS đến hai host được allowlist,
 không cho payload chứa PII/secret. Probe spam kiểm tra riêng rate limiter để độ trễ
 API không làm trôi cửa sổ 60 giây. Các nhóm query còn lại gọi model thật.
@@ -21,6 +24,9 @@ Chạy trên Python 3.12 (PowerShell, từ gốc repo):
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 # Tạo .env theo .env.example, điền key local; không commit .env.
+# Để tái lập artifact hiện tại, thêm vào .env:
+# BLUE_MODEL=nvidia/nemotron-3.5-lightning:free
+# Xóa BLUE_MODEL để quay về model Liquid theo rubric.
 .\.venv\Scripts\python.exe src/main.py --part 2
 .\.venv\Scripts\python.exe src/main.py --part 3
 .\.venv\Scripts\python.exe src/main.py --part 4

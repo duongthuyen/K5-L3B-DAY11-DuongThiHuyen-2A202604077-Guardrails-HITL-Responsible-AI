@@ -87,3 +87,14 @@ def test_model_failure_is_audited():
         asyncio.run(pipeline.query('account balance'))
     assert audit.logs[0]['layer'] == 'error'
     assert monitor.blocked_requests == 1
+
+
+def test_blue_model_override_is_explicit_and_reversible(monkeypatch):
+    from core.config import BLUE_MODEL, get_blue_model, get_blue_provider
+    monkeypatch.delenv('BLUE_MODEL', raising=False)
+    assert get_blue_model() == BLUE_MODEL
+    monkeypatch.setenv('BLUE_MODEL', ' nvidia/nemotron-3.5-lightning:free ')
+    assert get_blue_model() == 'nvidia/nemotron-3.5-lightning:free'
+    assert get_blue_provider() == 'openrouter'
+    monkeypatch.setenv('BLUE_MODEL', ' ')
+    assert get_blue_model() == BLUE_MODEL

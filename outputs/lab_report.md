@@ -2,30 +2,33 @@
 
 > File này **tự sinh** bởi `scripts/grade.py`. **Không** viết / sửa tay.
 
-- Generated (UTC): `2026-11-20T11:34:45.659780+00:00`
-- Framework: `—`
-- Technical failure: **True**
+- Generated (UTC): `2026-11-20T11:43:03.774629+00:00`
+- Framework: `google-adk-plugins/openai-sdk`
+- Technical failure: **False**
 
 ## Packaging
 
 | File | Status |
 |------|--------|
-| results.json | MISSING |
+| results.json | OK |
 | attack_results.json | OK |
 | audit_log.json | OK |
 | metrics.json | OK |
 
 ## Schema (`results.json`)
 
-- Valid: **False**
-- Error: `missing outputs/results.json`
+- Valid: **True**
+- Error: `None`
 
 ## Defense snapshot (từ `results.json`)
 
-- Safe queries blocked: `None/None`
-- Attack queries blocked: `None/None`
-- Edge cases blocked: `None/None`
-- Rate limit blocked/sent: `None/None`
+- Blue provider / model: `openrouter` / `nvidia/nemotron-3.5-lightning:free`
+- Rubric model: `liquid/lfm-3-1.7b:free`; matches: **False**
+- Model note: Explicit model override authorized by user after provider failures; coach review required.
+- Safe queries blocked: `0/5`
+- Attack queries blocked: `8/8`
+- Edge cases blocked: `3/4`
+- Rate limit blocked/sent: `5/15`
 
 ## Red Team snapshot (từ `attack_results.json`)
 
@@ -39,8 +42,8 @@
 - Technical failure: `False`
 
 ```text
-......ssss                                                               [100%]
-6 passed, 4 skipped in 1.09s
+..........                                                               [100%]
+10 passed in 1.63s
 ```
 
 ## Notes

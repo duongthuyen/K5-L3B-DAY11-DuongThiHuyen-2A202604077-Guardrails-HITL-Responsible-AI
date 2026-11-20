@@ -4,7 +4,8 @@ Lab 11 — Configuration, provider selection, API keys.
 Hai tầng model (không trộn):
 
   Blue Team (CP2–CP3, guardrails / pipeline / protected agent)
-    → CỐ ĐỊNH OpenRouter ``liquid/lfm-3-1.7b:free``
+    → Mặc định rubric: OpenRouter ``liquid/lfm-3-1.7b:free``
+    → BLUE_MODEL cho phép override rõ ràng; artifact ghi ngoại lệ so với rubric.
        https://openrouter.ai/liquid/lfm-3-1.7b:free
     → Cần ``OPENROUTER_API_KEY``
 
@@ -34,7 +35,7 @@ PROVIDER_OPENAI = "openai"
 PROVIDER_GEMINI = "gemini"
 PROVIDER_OPENROUTER = "openrouter"
 
-# --- Blue Team (LOCKED) ---
+# --- Blue Team (lab default; explicit BLUE_MODEL override supported) ---
 BLUE_PROVIDER = PROVIDER_OPENROUTER
 BLUE_MODEL = "liquid/lfm-3-1.7b:free"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
@@ -104,8 +105,8 @@ def get_blue_provider() -> str:
 
 
 def get_blue_model() -> str:
-    # Hard-locked; env cannot override for the graded Blue Team path.
-    return BLUE_MODEL
+    # Explicit user-authorized override; artifacts disclose rubric deviation.
+    return os.environ.get("BLUE_MODEL", "").strip() or BLUE_MODEL
 
 
 def get_openrouter_api_key() -> str:
@@ -240,7 +241,8 @@ def setup_api_key():
         os.environ["OPENROUTER_API_KEY"] = input(
             "Enter OpenRouter API Key (Blue): "
         ).strip()
-    print(f"Blue  — {blue_provider_label()}  [LOCKED]")
+    mode = "LAB DEFAULT" if get_blue_model() == BLUE_MODEL else "MODEL OVERRIDE"
+    print(f"Blue  — {blue_provider_label()}  [{mode}]")
 
     red = get_red_provider()
     model = get_red_model()
