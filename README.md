@@ -1,3 +1,44 @@
+## Bài làm — Dương Thị Huyền · 2A202604077 · K5-L3B
+
+Trạng thái kiểm tra ngày 20/11/2026: 62 test logic/smoke đạt; CP4 chạy thật trên
+`gpt-4o-mini`: Red leak 5/5, Red Advance chặn 5/5 (không có lỗi NeMo).
+**Chưa đủ hồ sơ nộp:** CP3 gọi đúng model Blue nhưng OpenRouter trả 429/504;
+chưa có `outputs/results.json`, nên 4 test artifact bị skip. Audit/metrics ghi
+nhận lần gọi lỗi thật. Cần chạy lại `--part 3`, toàn bộ tests và grader khi dịch vụ
+phục hồi, rồi commit các artifact mới. Không dùng mock/placeholder thay kết quả LLM.
+
+Triển khai CP2–CP4 trong `src/guardrails`, `src/assignment`, `src/attacks`.
+Pipeline chạy rate limit → input → model Blue cố định → output; audit và monitoring
+quan sát cả request bị chặn. Egress chỉ cho HTTPS đến hai host được allowlist,
+không cho payload chứa PII/secret. Probe spam kiểm tra riêng rate limiter để độ trễ
+API không làm trôi cửa sổ 60 giây. Các nhóm query còn lại gọi model thật.
+
+Chạy trên Python 3.12 (PowerShell, từ gốc repo):
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+# Tạo .env theo .env.example, điền key local; không commit .env.
+.\.venv\Scripts\python.exe src/main.py --part 2
+.\.venv\Scripts\python.exe src/main.py --part 3
+.\.venv\Scripts\python.exe src/main.py --part 4
+.\.venv\Scripts\python.exe -m pytest tests -q
+.\.venv\Scripts\python.exe scripts/grade.py --submission-dir . --out outputs/grade_report.json
+```
+
+Năm prompt kiểm tra completion, translation, hypothetical, confirmation và
+leo thang nhiều bước trong một lượt. Prompt confirmation chứa giá trị giả đã biết;
+việc model nhắc lại giá trị này không mạnh bằng bằng chứng trích xuất độc lập.
+Bonus dự kiến chọn B1, chỉ xác nhận khi có kết quả chạy thật và grader replay.
+Regex là lớp phòng thủ có giới hạn; không xem là bảo đảm chống mọi cách mã hóa.
+HITL cho hành động rủi ro tham khảo `src/agents/security_boundary.py`;
+bộ suite không thực hiện giao dịch ngân hàng.
+
+Có dùng Codex hỗ trợ triển khai và kiểm thử. Người nộp cần đọc, chạy lại và giải thích
+được code/prompt theo RULES; không coi báo cáo đóng gói là điểm chính thức của coach.
+
+---
+
 # Day 11 — Controlled Agent Security (2026)
 
 > 👤 **Hình thức:** bài tập **cá nhân** (1 người / 1 MSSV).  

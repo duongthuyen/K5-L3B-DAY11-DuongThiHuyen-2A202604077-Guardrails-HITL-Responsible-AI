@@ -1,0 +1,13 @@
+[
+  {
+    "user_id": "safe_queries-0",
+    "request_id": "9be7245e9fd6457bac90362109286822",
+    "input": "What is the savings interest rate?",
+    "started_at": "2026-11-20T11:27:32.232865+00:00",
+    "output": "Model request failed; no response released.",
+    "blocked": true,
+    "layer": "error",
+    "latency_ms": 50938.0,
+    "finished_at": "2026-11-20T11:28:23.168920+00:00"
+  }
+]

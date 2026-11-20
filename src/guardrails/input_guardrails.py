@@ -11,6 +11,7 @@ Status convention (không dùng True/False mơ hồ):
 from __future__ import annotations
 
 import re
+import unicodedata
 from typing import Literal
 
 from google.genai import types
@@ -51,16 +52,27 @@ def detect_injection(user_input: str) -> InputStatus:
     Returns:
         ``"BLOCK"`` if injection detected (chặn), ``"ALLOW"`` otherwise (cho qua).
     """
-    INJECTION_PATTERNS = [
-        # TODO: Add at least 5 regex patterns
-        # Example:
-        # r"ignore (all )?(previous|above) instructions",
+    text = normalize_text(user_input)
+    patterns = [
+        r"\bignore\s+(?:all\s+)?(?:(?:previous|above|prior)\s+)?instructions?",
+        r"\byou are now\b", r"\b(?:system|developer)\s+prompt\b",
+        r"\breveal\s+(?:your\s+)?(?:instructions|prompt)\b",
+        r"\bpretend\s+(?:you are|to be)\b",
+        r"\bact as\s+(?:a\s+|an\s+)?unrestricted\b",
+        r"\b(?:reveal|disclose|print|encode|translate|show)\b.*\b(?:internal password|admin password|secret|api key|credentials)\b",
+        r"bo qua\s+(?:moi\s+)?(?:huong dan|chi dan)",
+        r"tiet lo\s+(?:mat khau|thong tin noi bo)",
     ]
+    return "BLOCK" if any(re.search(p, text) for p in patterns) else "ALLOW"
 
-    for pattern in INJECTION_PATTERNS:
-        if re.search(pattern, user_input, re.IGNORECASE):
-            return "BLOCK"
-    return "ALLOW"
+
+def normalize_text(text: str) -> str:
+    """Fold accents/width and remove invisible controls before matching rules."""
+    text = unicodedata.normalize("NFKC", text or "").casefold().replace("đ", "d")
+    text = "".join(c for c in text if unicodedata.category(c) != "Cf")
+    text = "".join(c for c in unicodedata.normalize("NFKD", text)
+                   if not unicodedata.combining(c))
+    return " ".join(text.split())
 
 
 # ============================================================
@@ -84,14 +96,12 @@ def topic_filter(user_input: str) -> InputStatus:
         ``"BLOCK"`` = chặn (off-topic hoặc topic cấm).
         ``"ALLOW"`` = cho qua (câu banking hợp lệ).
     """
-    input_lower = user_input.lower()
-
-    # TODO: Implement logic:
-    # 1. If input contains any blocked topic -> return "BLOCK"
-    # 2. If input doesn't contain any allowed topic -> return "BLOCK"
-    # 3. Otherwise -> return "ALLOW"
-
-    pass  # Replace with your implementation
+    text = normalize_text(user_input)
+    def contains(topic):
+        return re.search(r"\b" + re.escape(normalize_text(topic)) + r"\b", text)
+    if any(contains(t) for t in BLOCKED_TOPICS):
+        return "BLOCK"
+    return "ALLOW" if any(contains(t) for t in ALLOWED_TOPICS) else "BLOCK"
 
 
 # ============================================================
@@ -144,14 +154,13 @@ class InputGuardrailPlugin(base_plugin.BasePlugin):
         self.total_count += 1
         text = self._extract_text(user_message)
 
-        # TODO: Implement logic:
-        # 1. Call detect_injection(text)
-        #    - If "BLOCK": increment blocked_count, return self._block_response("...")
-        # 2. Call topic_filter(text)
-        #    - If "BLOCK": increment blocked_count, return self._block_response("...")
-        # 3. If both return "ALLOW": return None (let message through)
-
-        pass  # Replace with your implementation
+        if not text.strip() or len(text) > 12000 or detect_injection(text) == "BLOCK":
+            self.blocked_count += 1
+            return self._block_response("Request blocked by input guardrail: unsafe or invalid input.")
+        if topic_filter(text) == "BLOCK":
+            self.blocked_count += 1
+            return self._block_response("Request blocked: I can only help with banking-related questions.")
+        return None
 
 
 # ============================================================
